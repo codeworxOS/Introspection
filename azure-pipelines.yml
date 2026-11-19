@@ -83,7 +83,7 @@ stages:
       artifact: 'packages'
 
 - stage: Publish
-  displayName: "Publish to Artifact Server"
+  displayName: "Publish to nuget.org"
   trigger: manual
   jobs:
   - deployment: push
@@ -101,4 +101,5 @@ stages:
             inputs:
               command: 'push'
               packagesToPush: '$(Pipeline.Workspace)/packages/*.nupkg'
-              nuGetFeedType: 'nuget.org'
+              nuGetFeedType: 'external'
+              publishFeedCredentials: 'nuget.org'
