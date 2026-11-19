@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Codeworx.AspNetCore.Authentication.Introspection.Cache
@@ -14,11 +15,13 @@ namespace Codeworx.AspNetCore.Authentication.Introspection.Cache
         private static readonly TimeSpan _expirationBuffer = TimeSpan.FromSeconds(30);
         private readonly IDistributedCache _distributedCache;
         private readonly IOptionsMonitor<IntrospectionOptions> _optionsMonitor;
+        private readonly ILogger<IntrospectionResponseCache> _logger;
 
-        public IntrospectionResponseCache(IDistributedCache distributedCache, IOptionsMonitor<IntrospectionOptions> optionsMonitor)
+        public IntrospectionResponseCache(IDistributedCache distributedCache, IOptionsMonitor<IntrospectionOptions> optionsMonitor, ILogger<IntrospectionResponseCache> logger)
         {
             _distributedCache = distributedCache;
             _optionsMonitor = optionsMonitor;
+            _logger = logger;
         }
 
         public async Task<JwtPayload> GetOrAddAsync(string scheme, string token, Func<string, CancellationToken, Task<JwtPayload>> payloadFactory, CancellationToken cancellation)
@@ -38,9 +41,10 @@ namespace Codeworx.AspNetCore.Authentication.Introspection.Cache
                     {
                         cacheResponse = protector.Unprotect(cacheResponse);
                     }
-                    catch (CryptographicException)
+                    catch (CryptographicException ex)
                     {
                         // e.g. data protection key ring rotation - treat as cache miss
+                        _logger.CachedPayloadUnprotectFailed(ex);
                         cacheResponse = null;
                     }
                 }

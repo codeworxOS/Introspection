@@ -6,6 +6,10 @@ parameters:
   type: object
   default:
     - src/Codeworx.AspNetCore.Authentication.Introspection
+- name: testProjectsArray
+  type: object
+  default:
+    - test/Codeworx.AspNetCore.Authentication.Introspection.Tests
 
 variables:
   major: 10
@@ -13,6 +17,7 @@ variables:
   buildOffset: 0
   packageName: 'Codeworx.AspNetCore.Authentication.Introspection'
   projects: ${{ join(';',parameters.projectsArray) }}
+  testProjects: ${{ join(';',parameters.testProjectsArray) }}
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
@@ -29,9 +34,6 @@ stages:
         command: 'custom'
         custom: 'tool'
         arguments: 'install Codeworx.PackageVersion -g'
-
-    - task: NuGetAuthenticate@1
-      displayName: "Authenticate internal nuget feed"
 
     - task: DotNetCoreCLI@2
       displayName: "Get next PackageVersion"
@@ -59,6 +61,13 @@ stages:
         SourceFolder: '$(Agent.TempDirectory)'
         Contents: 'introspection_signkey.snk'
         TargetFolder: './private'
+
+    - task: DotNetCoreCLI@2
+      displayName: "run dotnet test"
+      inputs:
+        command: 'test'
+        projects: '$(testProjects)'
+        arguments: '--configuration $(buildConfiguration)'
 
     - task: DotNetCoreCLI@2
       displayName: "run dotnet pack"

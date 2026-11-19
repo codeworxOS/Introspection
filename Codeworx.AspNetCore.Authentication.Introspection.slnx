@@ -5,4 +5,5 @@
     <File Path="Directory.Packages.props" />
   </Folder>
   <Project Path="src/Codeworx.AspNetCore.Authentication.Introspection/Codeworx.AspNetCore.Authentication.Introspection.csproj" />
+  <Project Path="test/Codeworx.AspNetCore.Authentication.Introspection.Tests/Codeworx.AspNetCore.Authentication.Introspection.Tests.csproj" />
 </Solution>

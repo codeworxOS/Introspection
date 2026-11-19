@@ -15,4 +15,7 @@ internal static partial class LoggingExtensions
 
     [LoggerMessage(4, LogLevel.Debug, "Unable to reject the response as forbidden, it has already started.", EventName = "ForbiddenResponseHasStarted")]
     public static partial void ForbiddenResponseHasStarted(this ILogger logger);
+
+    [LoggerMessage(5, LogLevel.Warning, "Unable to unprotect a cached introspection response. The entry is ignored and treated as a cache miss.", EventName = "CachedPayloadUnprotectFailed")]
+    public static partial void CachedPayloadUnprotectFailed(this ILogger logger, Exception ex);
 }
