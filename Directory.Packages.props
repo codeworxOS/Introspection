@@ -7,7 +7,7 @@
     <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>All</PrivateAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="10.0.401">
+    <GlobalPackageReference Include="Microsoft.SourceLink.Github" Version="10.0.401">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
