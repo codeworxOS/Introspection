@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/.global/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="src/Codeworx.AspNetCore.Authentication.Introspection/Codeworx.AspNetCore.Authentication.Introspection.csproj" />
+</Solution>

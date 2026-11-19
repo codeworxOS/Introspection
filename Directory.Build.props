@@ -1,0 +1,29 @@
+<Project>
+	<PropertyGroup>
+		<Company>codeworx gmbh</Company>
+		<Copyright>copyright © 2026 codeworx gmbh</Copyright>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<DebugType>portable</DebugType>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<LangVersion>14</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
+	<PropertyGroup>
+		<SupportedDotNetVersions>net10.0</SupportedDotNetVersions>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="$(MSBuildThisFileDirectory)global\stylecop.json" Link="stylecop.json" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)global\stylecop.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
+
+</Project>

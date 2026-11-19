@@ -1,0 +1,20 @@
+name: Codeworx AspNetCore Introspection Authentication
+version: 1.0.0
+description: Authentication handler for asp.net core with introspection endpoints
+author: Raphael Schwarz
+# Which agent platforms to deploy to.
+# Resolution order: --target flag > this field > auto-detect from filesystem.
+# Accepted values: agent-skills, antigravity, claude, codex, copilot, cursor, gemini, grok-build, kiro, opencode, vscode, windsurf
+targets:
+  - claude
+  - copilot
+  - opencode
+dependencies:
+  apm:
+    - dotnet/skills/plugins/dotnet#main
+    - dotnet/skills/plugins/dotnet-advanced#main
+    - dotnet/skills/plugins/dotnet-test#main
+    - dotnet/skills/plugins/dotnet-aspnetcore#main
+  mcp: []
+includes: auto
+scripts: {}

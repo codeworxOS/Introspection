@@ -1,0 +1,10 @@
+<Project>
+	<!-- A project that declares its own PackageLicenseExpression (e.g. MIT) must not also ship the root LICENSE file. -->
+	<PropertyGroup Condition="'$(PackageLicenseExpression)' != ''">
+		<PackageLicenseFile />
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(PackageLicenseFile)' != ''">
+		<None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="" Visible="false" />
+	</ItemGroup>
+</Project>
