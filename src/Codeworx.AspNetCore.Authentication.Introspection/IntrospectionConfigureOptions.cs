@@ -2,22 +2,18 @@
 using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 
 namespace Codeworx.AspNetCore.Authentication.Introspection;
 
 internal sealed class IntrospectionConfigureOptions : IConfigureNamedOptions<IntrospectionOptions>
 {
-    private const string _primaryPurpose = "Codeworx.AspNetCore.Authentication.Introspection";
     private static readonly Func<string, TimeSpan> _invariantTimeSpanParse = (string timespanString) => TimeSpan.Parse(timespanString, CultureInfo.InvariantCulture);
     private readonly IAuthenticationConfigurationProvider _authenticationConfigurationProvider;
-    private readonly IDataProtectionProvider _dp;
 
-    public IntrospectionConfigureOptions(IAuthenticationConfigurationProvider configurationProvider, IDataProtectionProvider dp)
+    public IntrospectionConfigureOptions(IAuthenticationConfigurationProvider configurationProvider)
     {
         _authenticationConfigurationProvider = configurationProvider;
-        _dp = dp;
     }
 
     public void Configure(string? name, IntrospectionOptions options)
@@ -34,18 +30,12 @@ internal sealed class IntrospectionConfigureOptions : IConfigureNamedOptions<Int
             return;
         }
 
-        options.AccessTokenProtector = _dp.CreateProtector(_primaryPurpose, name, "AccessToken");
-
         options.ValidateIssuer = StringHelpers.ParseValueOrDefault(configSection[nameof(options.ValidateIssuer)], bool.Parse, options.ValidateIssuer);
-        var issuers = configSection.GetSection(nameof(options.ValidIssuers)).GetChildren().Where(p => p.Value != null).Select(iss => iss.Value!).ToList();
+        options.ValidIssuers.AddRange(configSection.GetSection(nameof(options.ValidIssuers)).GetChildren().Where(p => p.Value != null).Select(iss => iss.Value!));
 
         options.ValidateAudience = StringHelpers.ParseValueOrDefault(configSection[nameof(options.ValidateAudience)], bool.Parse, options.ValidateAudience);
-        var audience = configSection[nameof(options.Audience)];
-        var audiences = configSection.GetSection(nameof(options.ValidAudiences)).GetChildren().Where(p => p.Value != null).Select(aud => aud.Value!).ToList();
-        if (audience is not null)
-        {
-            audiences.Add(audience);
-        }
+        options.Audience = configSection[nameof(options.Audience)] ?? options.Audience;
+        options.ValidAudiences.AddRange(configSection.GetSection(nameof(options.ValidAudiences)).GetChildren().Where(p => p.Value != null).Select(aud => aud.Value!));
 
         options.ValidateLifetime = StringHelpers.ParseValueOrDefault(configSection[nameof(options.ValidateLifetime)], bool.Parse, options.ValidateLifetime);
 
@@ -66,6 +56,7 @@ internal sealed class IntrospectionConfigureOptions : IConfigureNamedOptions<Int
 
         options.EnableCache = StringHelpers.ParseValueOrDefault(configSection[nameof(options.EnableCache)], bool.Parse, options.EnableCache);
         options.CacheDuration = StringHelpers.ParseValueOrDefault(configSection[nameof(options.CacheDuration)], _invariantTimeSpanParse, options.CacheDuration);
+        options.EncryptCachedPayload = StringHelpers.ParseValueOrDefault(configSection[nameof(options.EncryptCachedPayload)], bool.Parse, options.EncryptCachedPayload);
 
         options.ClientId = configSection[nameof(options.ClientId)] ?? options.ClientId;
         options.ClientSecret = configSection[nameof(options.ClientSecret)] ?? options.ClientSecret;
@@ -73,8 +64,6 @@ internal sealed class IntrospectionConfigureOptions : IConfigureNamedOptions<Int
         options.ValidateAudience = StringHelpers.ParseValueOrDefault(configSection[nameof(options.ValidateAudience)], bool.Parse, options.ValidateAudience);
         options.ValidateIssuer = StringHelpers.ParseValueOrDefault(configSection[nameof(options.ValidateIssuer)], bool.Parse, options.ValidateIssuer);
         options.ClockSkew = StringHelpers.ParseValueOrDefault(configSection[nameof(options.ClockSkew)], _invariantTimeSpanParse, options.ClockSkew);
-
-        options.ValidationParameters = new ValidationParameters(options.ValidateAudience, options.ValidateIssuer, options.ValidateLifetime, issuers, audiences, options.ClockSkew);
     }
 
     public void Configure(IntrospectionOptions options)

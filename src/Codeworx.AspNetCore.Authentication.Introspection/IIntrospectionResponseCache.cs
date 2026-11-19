@@ -7,6 +7,6 @@ namespace Codeworx.AspNetCore.Authentication.Introspection
 {
     public interface IIntrospectionResponseCache
     {
-        Task<JwtPayload> GetOrAddAsync(string token, Func<string, CancellationToken, Task<JwtPayload>> payloadFactory, TimeSpan cacheDuration, CancellationToken cancellation);
+        Task<JwtPayload> GetOrAddAsync(string scheme, string token, Func<string, CancellationToken, Task<JwtPayload>> payloadFactory, CancellationToken cancellation);
     }
 }

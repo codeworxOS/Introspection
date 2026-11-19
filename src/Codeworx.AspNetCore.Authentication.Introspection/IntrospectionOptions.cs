@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Protocols;
@@ -182,6 +184,29 @@ namespace Codeworx.AspNetCore.Authentication.Introspection
         /// </value>
         public TimeSpan CacheDuration { get; set; } = TimeSpan.FromMinutes(10);
 
+        /// <summary>
+        /// Gets or sets the function that derives the distributed cache key from the bearer token.
+        /// Defaults to a SHA-256 hash of the token so that raw tokens are never exposed as cache keys.
+        /// </summary>
+        public Func<string, string> CacheKeyProvider { get; set; } = DefaultCacheKeyProvider;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the cached introspection payload should be encrypted
+        /// using the <see cref="AccessTokenProtector"/>.
+        /// </summary>
+        public bool EncryptCachedPayload { get; set; } = false;
+
         public ValidationParameters? ValidationParameters { get; set; }
+
+        /// <summary>
+        /// Derives the default cache key from a bearer token by hashing it with SHA-256.
+        /// </summary>
+        /// <param name="token">The bearer token.</param>
+        /// <returns>The cache key.</returns>
+        public static string DefaultCacheKeyProvider(string token)
+        {
+            var hash = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            return "introspection:" + Base64UrlEncoder.Encode(hash);
+        }
     }
 }

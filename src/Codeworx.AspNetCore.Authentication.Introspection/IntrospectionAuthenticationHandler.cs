@@ -85,7 +85,7 @@ namespace Codeworx.AspNetCore.Authentication.Introspection
 
                 if (Options.EnableCache)
                 {
-                    payload = await _responseCache.GetOrAddAsync(token, CallIntrospectionEndpointAsync, Options.CacheDuration, Context.RequestAborted);
+                    payload = await _responseCache.GetOrAddAsync(Scheme.Name, token, CallIntrospectionEndpointAsync, Context.RequestAborted);
                 }
                 else
                 {
@@ -144,6 +144,12 @@ namespace Codeworx.AspNetCore.Authentication.Introspection
             if (string.IsNullOrWhiteSpace(config.IntrospectionEndpoint))
             {
                 throw new IntrospectionEndpintMissingException { Authority = Options.Authority };
+            }
+
+            if (Options.RequireHttpsMetadata &&
+                !config.IntrospectionEndpoint.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new IntrospectionInsecureEndpointException();
             }
 
             var values = new Dictionary<string, string>();
@@ -326,6 +332,7 @@ namespace Codeworx.AspNetCore.Authentication.Introspection
                     IntrospectionInvalidResponseException iire => "Invalid content on introspection response.",
                     IntrospectionInactiveResponseException iire => "The provided token was invalid or has been disabled.",
                     IntrospectionEndpintMissingException ieme => $"No introspection endpoint present in openid metadata for authority {ieme.Authority}. Use Options.Configuration.IntrospectionEndpoint to override the meatadata.",
+                    IntrospectionInsecureEndpointException _ => "The introspection endpoint must use HTTPS.",
                     IntrospectionResponseStausCodeException irsce => $"The introspection was unsuccessful. Response status code: {irsce.StatusCode}",
                     _ => null,
                 };
@@ -352,7 +359,7 @@ namespace Codeworx.AspNetCore.Authentication.Introspection
                     bool isValid = false;
                     foreach (var issuer in new[] { config.Issuer }.Concat(validationParameters.Issuers))
                     {
-                        if (issuer.Equals(payload.Iss, StringComparison.OrdinalIgnoreCase))
+                        if (issuer.Equals(payload.Iss, StringComparison.Ordinal))
                         {
                             isValid = true;
                             break;
@@ -379,7 +386,7 @@ namespace Codeworx.AspNetCore.Authentication.Introspection
                     {
                         foreach (var tokenAudience in payload.Aud)
                         {
-                            if (audience.Equals(tokenAudience, StringComparison.OrdinalIgnoreCase))
+                            if (audience.Equals(tokenAudience, StringComparison.Ordinal))
                             {
                                 isValid = true;
                                 break;

@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -14,6 +16,14 @@ namespace Codeworx.AspNetCore.Authentication.Introspection;
 /// </summary>
 public class IntrospectionPostConfigureOptions : IPostConfigureOptions<IntrospectionOptions>
 {
+    private const string _primaryPurpose = "Codeworx.AspNetCore.Authentication.Introspection";
+    private readonly IDataProtectionProvider _dp;
+
+    public IntrospectionPostConfigureOptions(IDataProtectionProvider dp)
+    {
+        _dp = dp;
+    }
+
     /// <summary>
     /// Invoked to post configure a JwtBearerOptions instance.
     /// </summary>
@@ -21,6 +31,25 @@ public class IntrospectionPostConfigureOptions : IPostConfigureOptions<Introspec
     /// <param name="options">The options instance to configure.</param>
     public void PostConfigure(string? name, IntrospectionOptions options)
     {
+        options.AccessTokenProtector = _dp.CreateProtector(_primaryPurpose, name ?? Options.DefaultName, "AccessToken");
+
+        if (options.ValidationParameters == null)
+        {
+            var audiences = new List<string>(options.ValidAudiences);
+            if (!string.IsNullOrEmpty(options.Audience))
+            {
+                audiences.Add(options.Audience!);
+            }
+
+            options.ValidationParameters = new ValidationParameters(
+                options.ValidateAudience,
+                options.ValidateIssuer,
+                options.ValidateLifetime,
+                options.ValidIssuers,
+                audiences,
+                options.ClockSkew);
+        }
+
         if (options.ConfigurationManager == null)
         {
             if (options.Configuration != null)
