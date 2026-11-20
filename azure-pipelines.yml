@@ -12,7 +12,7 @@ parameters:
     - test/Codeworx.AspNetCore.Authentication.Introspection.Tests
 
 variables:
-  major: 10
+  major: 11
   minor: 0
   buildOffset: 0
   packageName: 'Codeworx.AspNetCore.Authentication.Introspection'
